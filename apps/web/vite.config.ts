@@ -6,9 +6,11 @@ import viteReact from '@vitejs/plugin-react'
 export default defineConfig(({ command }) => ({
   plugins: [
     tanstackStart(),
-    // Netlify's plugin runs a Deno-based edge-functions dev server locally;
-    // only enable it during `vite build` when producing the deploy bundle.
-    ...(command === 'build' ? [netlify()] : []),
+    // Deploy adapters. Netlify's plugin runs a Deno-based edge-functions dev
+    // server locally, so it's build-only, and the Netlify CLI sets NETLIFY=true
+    // during builds. Any other host (e.g. Render's node runtime) gets a plain
+    // dist/ that `node server.mjs` serves.
+    ...(command === 'build' && process.env.NETLIFY ? [netlify()] : []),
     viteReact(),
   ],
 }))

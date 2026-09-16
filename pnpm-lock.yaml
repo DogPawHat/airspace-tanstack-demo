@@ -77,6 +77,9 @@ importers:
       react-dom:
         specifier: ^19.2.0
         version: 19.3.0(react@19.3.0)
+      srvx:
+        specifier: ^0.11.22
+        version: 0.11.22
     devDependencies:
       '@netlify/vite-plugin-tanstack-start':
         specifier: ^1.3.19

@@ -1,0 +1,98 @@
+# Render blueprint: deploys both apps of this monorepo.
+# Create with:  render blueprint launch  (or git-connect the repo in the Render UI)
+#
+# PDS_HOSTNAME is baked into every account's did:plc at first boot — set the
+# real public hostname and add the custom domain BEFORE the first deploy.
+# Changing it later orphans every account (same warning as apps/demo-pds/README.md).
+
+services:
+  # ── TanStack Start app (node runtime, no Netlify plugin) ──────────────────
+  - type: web
+    name: airspace-web
+    runtime: node
+    rootDir: apps/web
+    buildCommand: pnpm install && pnpm build
+    startCommand: node server.mjs
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: '22'
+      - key: AIRSPACE_SERVICE
+        sync: false
+      - key: AIRSPACE_IDENTIFIER
+        sync: false
+      - key: AIRSPACE_PASSWORD
+        sync: false
+
+  # ── atproto PDS (spaces alpha) on a persistent volume ─────────────────────
+  - type: web
+    name: airspace-demo-pds
+    runtime: docker
+    dockerfilePath: apps/demo-pds/Dockerfile
+    dockerContext: .
+    healthCheckPath: /xrpc/_health
+    disk:
+      name: pds_data
+      mountPath: /data
+      sizeGB: 1
+    autoDeploy: true
+    envVars:
+      # Secrets: set these once in the Render dashboard (openssl rand --hex 32,
+      # or --hex 16 for PDS_ADMIN_PASSWORD). `generateValue` also works.
+      - key: PDS_ADMIN_PASSWORD
+        sync: false
+      - key: PDS_JWT_SECRET
+        sync: false
+      - key: PDS_DPOP_SECRET
+        sync: false
+      - key: PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX
+        sync: false
+
+      - key: PDS_HOSTNAME
+        sync: false        # e.g. pds.demo.yourdomain.com — do not change post-deploy
+      - key: PDS_SERVICE_HANDLE_DOMAINS
+        value: '.demo.getair.space'   # move to '.demo.<yourdomain>' if you rebrand
+      - key: PDS_DID_PLC_URL
+        value: 'https://plc.directory'
+      - key: PDS_DATA_DIRECTORY
+        value: '/data'
+      - key: PDS_BLOBSTORE_DISK_LOCATION
+        value: '/data/blobs'
+      - key: PDS_INVITE_REQUIRED
+        value: '1'
+      - key: PDS_BLOB_UPLOAD_LIMIT
+        value: '1000000'
+      - key: PDS_ACCEPTING_REPO_IMPORTS
+        value: '0'
+      - key: PDS_PORT
+        value: '3000'
+      - key: PDS_SERVICE_NAME
+        value: 'airspace demo'
+      - key: PDS_HOME_URL
+        sync: false        # e.g. https://<your-airspace-web>.onrender.com
+      - key: LOG_ENABLED
+        value: '1'
+      - key: LOG_LEVEL
+        value: 'info'
+
+  # ── nightly cleanup of throwaway demo accounts ────────────────────────────
+  # Render cron jobs run on plain node; reset.mjs has no dependencies.
+  - type: cron
+    name: airspace-pds-reset
+    runtime: node
+    rootDir: apps/demo-pds
+    schedule: '0 4 * * *'
+    buildCommand: echo no deps
+    startCommand: node reset.mjs
+    envVars:
+      - key: NODE_VERSION
+        value: '22'
+      - key: PDS_SERVICE
+        sync: false        # https://<pds hostname>
+      - key: PDS_ADMIN_PASSWORD
+        sync: false        # same value as the pds service above
+      - key: RESET_MAX_AGE_HOURS
+        value: '24'
+      - key: RESET_KEEP
+        sync: false        # optional: DIDs/handles to spare

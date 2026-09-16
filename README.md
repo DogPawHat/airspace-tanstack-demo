@@ -26,8 +26,17 @@ Other helpers: `pnpm pds:invite` (mint an invite code, needs `PDS_ADMIN_PASSWORD
 
 ## deploy
 
-- **web** → Netlify: build command `vite build`, publish `dist/client` (set **base directory**
-  to `apps/web` in the Netlify UI; `apps/web/netlify.toml` holds the rest).
-- **demo-pds** → Fly: `fly deploy -c apps/demo-pds/fly.toml --dockerfile apps/demo-pds/Dockerfile .`
+## deploy
+
+- **Render (both apps)**: `render.yaml` at the repo root is a complete blueprint —
+  `render blueprint launch` (or git-connect). The web app builds as a plain SSR node bundle
+  (`node server.mjs`, no Netlify plugin) and the PDS deploys as a Docker service with a
+  1 GB disk. Most `sync: false` vars must be set in the Render UI — especially the PDS
+  `PDS_HOSTNAME` **before its first boot** (it's baked into every account's `did:plc`).
+  The `airspace-pds-reset` cron job cleans up throwaway accounts daily.
+- **Netlify (web only)** still works: it builds with the Netlify plugin when `NETLIFY=true`
+  is set (the CLI sets it); site settings: build command `vite build`, publish `dist/client`,
+  base directory `apps/web`, function at `.netlify/v1/functions/server.mjs`.
+- **Fly (pds)**: `fly deploy -c apps/demo-pds/fly.toml --dockerfile apps/demo-pds/Dockerfile .`
   from this repo root. See `apps/demo-pds/README.md` for first-time setup (secrets, volume, certs)
   and the daily `reset.mjs` job.
