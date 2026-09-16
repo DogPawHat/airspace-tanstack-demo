@@ -1,0 +1,12 @@
+[build]
+  command = "vite build"
+  publish = "dist/client"
+
+[dev]
+  command = "vite dev"
+  port = 3000
+
+[build.environment]
+  # Set these in the Netlify UI instead (they're secrets):
+  # AIRSPACE_SERVICE, AIRSPACE_IDENTIFIER, AIRSPACE_PASSWORD
+  NODE_VERSION = "22"

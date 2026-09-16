@@ -1,0 +1,1 @@
+import{e as a,r as i,i as o}from"./index--KSCsVty.js";function c(e){const t=a();return i.useCallback(async(...s)=>{try{const r=await e(...s);if(o(r))throw r;return r}catch(r){if(o(r))return r.options._fromLocation=t.stores.location.get(),t.navigate(t.resolveRedirect(r).options);throw r}},[t,e])}export{c as u};
