@@ -1,9 +1,23 @@
-# Render blueprint: deploys both apps of this monorepo.
+# Render blueprint: deploys both apps of this monorepo on the free tier.
 # Create with:  render blueprint launch  (or git-connect the repo in the Render UI)
 #
-# PDS_HOSTNAME is baked into every account's did:plc at first boot — set the
-# real public hostname and add the custom domain BEFORE the first deploy.
-# Changing it later orphans every account (same warning as apps/demo-pds/README.md).
+# The PDS is intentionally EPHEMERAL: free web services have no persistent disk,
+# so every deploy/restart/spin-down wipes all repos and blobs — this demo treats
+# that as a feature (same spirit as the upstream demo's daily account wipe).
+# Consequences handled here:
+#   - no `disk:` mount; no reset cron (nothing accumulates)
+#   - accounts are re-created after each boot with `pnpm pds:account` against the
+#     deployed PDS; keep AIRSPACE_IDENTIFIER/PASSWORD stable so the web app's
+#     env vars never need to change
+#   - PDS_HOSTNAME is baked into each account's did:plc genesis *at account
+#     creation*, not first boot — with wiping it is now safe to change later
+#
+# Recommended: add a CUSTOM wildcard domain to the pds service (free on Render):
+#   pds.<yourdomain>.com        + wildcard *.demo.<yourdomain>.com
+# Then PDS_HOSTNAME=pds.<yourdomain>.com and PDS_SERVICE_HANDLE_DOMAINS=.demo.<yourdomain>.com
+# make every issued handle (alice.demo.<yourdomain>.com) resolvable by any
+# atproto client. On the bare *.onrender.com domain handles stay unresolvable
+# outside the PDS (you cannot add DNS under onrender.com).
 
 services:
   # ── TanStack Start app (node runtime, no Netlify plugin) ──────────────────
@@ -32,10 +46,6 @@ services:
     dockerfilePath: apps/demo-pds/Dockerfile
     dockerContext: .
     healthCheckPath: /xrpc/_health
-    disk:
-      name: pds_data
-      mountPath: /data
-      sizeGB: 1
     autoDeploy: true
     envVars:
       # Secrets: set these once in the Render dashboard (openssl rand --hex 32,
@@ -76,23 +86,7 @@ services:
       - key: LOG_LEVEL
         value: 'info'
 
-  # ── nightly cleanup of throwaway demo accounts ────────────────────────────
-  # Render cron jobs run on plain node; reset.mjs has no dependencies.
-  - type: cron
-    name: airspace-pds-reset
-    runtime: node
-    rootDir: apps/demo-pds
-    schedule: '0 4 * * *'
-    buildCommand: echo no deps
-    startCommand: node reset.mjs
-    envVars:
-      - key: NODE_VERSION
-        value: '22'
-      - key: PDS_SERVICE
-        sync: false        # https://<pds hostname>
-      - key: PDS_ADMIN_PASSWORD
-        sync: false        # same value as the pds service above
-      - key: RESET_MAX_AGE_HOURS
-        value: '24'
-      - key: RESET_KEEP
-        sync: false        # optional: DIDs/handles to spare
+# NOTE: the Fly-style daily `reset.mjs` cron job is intentionally omitted —
+# with no persistent disk there is nothing to clean up. If you ever move the
+# PDS to paid compute with a disk, re-add it:
+#   - type: cron ... startCommand: node reset.mjs  (apps/demo-pds/reset.mjs)
