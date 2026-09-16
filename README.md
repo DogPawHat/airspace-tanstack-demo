@@ -1,51 +1,33 @@
-Demo of [airspace](https://getair.space) running on TanStack Start + TanStack Query — the ported Nuxt example (from `airspace/examples/nuxt`).
+# airspace-tanstack-monorepo
 
-## Run it
+pnpm workspace with:
 
-The app expects a PDS on `http://localhost:2583` (the one from the airspace repo):
+- `apps/web` — the [airspace](https://getair.space) demo on TanStack Start + TanStack Query
+  (ported from `airspace/examples/nuxt`)
+- `apps/demo-pds` — the reference atproto PDS from the permissioned spaces alpha, copied from
+  [`danielroe/airspace` `demo-pds/`](https://github.com/danielroe/airspace/tree/main/demo-pds)
+  (commit `5f06bd7`) and adapted for this workspace (alpha-package pinning lives in the root
+  `pnpm-workspace.yaml`; the `Dockerfile` expects the repo root as its build context)
+
+## local dev
 
 ```sh
-cd ../airspace
 pnpm install
-pnpm dev:pds        # prints credentials for alice and bob
+pnpm pds           # demo PDS on localhost:2583 (in-memory PLC, throwaway data dir)
+pnpm pds:account   # (once, with PDS running) create alice.test, prints dotenv-shaped creds # PDS_ADMIN_PASSWORD=admin
+
+pnpm dev           # web app, http://localhost:5173 — reads apps/web/.env
 ```
 
-Then, here:
+`apps/web/.env` (see `.env.example`): `AIRSPACE_SERVICE`, `AIRSPACE_IDENTIFIER`, `AIRSPACE_PASSWORD`.
 
-```sh
-pnpm install
-pnpm dev            # http://localhost:5173
-```
+Other helpers: `pnpm pds:invite` (mint an invite code, needs `PDS_ADMIN_PASSWORD`),
+`pnpm pds:smoke`, `pnpm pds:reset`, `pnpm typecheck`, `pnpm build`.
 
-Production / Netlify:
+## deploy
 
-```sh
-pnpm build                                  # dist/client + Netlify function in .netlify/v1
-npx netlify deploy --build --prod           # or: git-connect the repo in the Netlify UI
-```
-
-Deploy settings (also in `netlify.toml`): build command `vite build`, publish dir `dist/client`,
-Netlify function at `.netlify/v1/functions/server.mjs`. The Netlify plugin is build-only here
-(it needs Deno for its local edge-functions emulation). Local production emulation:
-`npm i -g netlify-cli && netlify dev`.
-
-Config lives in `.env` (see `.env.example`): `AIRSPACE_SERVICE`, `AIRSPACE_IDENTIFIER`, `AIRSPACE_PASSWORD`.
-
-For deployment, set those three as Netlify environment variables (they're secrets). Note the
-deployed copy will reach whatever PDS `AIRSPACE_SERVICE` points at — the localhost dev PDS is
-only reachable locally, so use a publicly-reachable PDS for Netlify. Note/cover image URLs come
-from the PDS too, so those must be public for visitors.
-
-`seed.ts` creates a demo tag, draft and published note directly against the PDS:
-
-```sh
-node seed.ts
-```
-
-## Layout
-
-- `lexicons.ts` / `collections.ts` — copied unchanged from the Nuxt example
-- `src/server/airspace.ts` — lazy server-side singleton airspace instance (env-configured session)
-- `src/server/air.ts` — all server functions (`createServerFn`): reads from loaders, writes (profile, draft create via FormData upload, publish)
-- `src/queries.ts` — TanStack Query definitions wrapping the server functions
-- `src/routes/` — notes list, note detail (comark markdown render), drafts, profile
+- **web** → Netlify: build command `vite build`, publish `dist/client` (set **base directory**
+  to `apps/web` in the Netlify UI; `apps/web/netlify.toml` holds the rest).
+- **demo-pds** → Fly: `fly deploy -c apps/demo-pds/fly.toml --dockerfile apps/demo-pds/Dockerfile .`
+  from this repo root. See `apps/demo-pds/README.md` for first-time setup (secrets, volume, certs)
+  and the daily `reset.mjs` job.

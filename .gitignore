@@ -1,7 +1,21 @@
+# vite
+.vite
+
 .output
 node_modules
+dist
 *.env
 .env
 
 # Local Netlify folder
 .netlify
+
+# netlify base dir lives in apps/web now
+apps/web/.netlify
+
+# generated vite/nitro state (committed by mistake historically)
+.nitro
+.tanstack
+
+# demo pds runtime data
+data
