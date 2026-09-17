@@ -5,7 +5,10 @@ import { DemoShell } from '../components/DemoShell.tsx'
 import { accountQuery, notesQuery, useAccount, useNotes } from '../queries.ts'
 
 export const Route = createFileRoute('/')({
-  loader: ({ context }) => context.queryClient.ensureQueryData(notesQuery()),
+  loader: ({ context }) => Promise.all([
+    context.queryClient.ensureQueryData(accountQuery()),
+    context.queryClient.ensureQueryData(notesQuery()).catch(() => null),
+  ]),
   component: HomePage,
 })
 
@@ -30,52 +33,59 @@ function HomePage() {
             ? <p>{data.profile.bio}</p>
             : (
                 <p>
-                  A notes app on a service account on our own PDS. Published notes live in the
-                  account's public repo, drafts in a permissioned space.
+                  A notes app on a sandbox account on our own PDS. Published notes live in the
+                  account's public repo, drafts in a permissioned space. Sandbox accounts are
+                  wiped periodically.
                 </p>
               )}
         </header>
 
-        {data
-          ? data.notes.length
-            ? (
-                <ul className="demo-rows">
-                  {data.notes.map((note) => {
-                    const tag = note.related?.tag?.value.name
-                    return (
-                      <li key={note.uri}>
-                        <Link to="/notes/$rkey" params={{ rkey: note.rkey }} className="title">
-                          {note.value.title}
-                        </Link>
-                        {tag ? <span className="tag">{tag}</span> : null}
-                        {note.value.createdAt ? <span className="meta">{formatDate(note.value.createdAt)}</span> : null}
-                        {account
-                          ? (
-                              <a
-                                href={`https://pdsls.dev/at://${account.did}/${collection}/${note.rkey}`}
-                                className="meta"
-                                target="_blank"
-                                rel="noopener"
-                              >
-                                record ↗
-                              </a>
-                            )
-                          : null}
-                      </li>
-                    )
-                  })}
-                </ul>
-              )
+        {account
+          ? data
+            ? data.notes.length
+              ? (
+                  <ul className="demo-rows">
+                    {data.notes.map((note) => {
+                      const tag = note.related?.tag?.value.name
+                      return (
+                        <li key={note.uri}>
+                          <Link to="/notes/$rkey" params={{ rkey: note.rkey }} className="title">
+                            {note.value.title}
+                          </Link>
+                          {tag ? <span className="tag">{tag}</span> : null}
+                          {note.value.createdAt ? <span className="meta">{formatDate(note.value.createdAt)}</span> : null}
+                          <a
+                            href={`https://pdsls.dev/at://${account.did}/${collection}/${note.rkey}`}
+                            className="meta"
+                            target="_blank"
+                            rel="noopener"
+                          >
+                            record ↗
+                          </a>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )
+              : (
+                  <p className="demo-empty">
+                    Nothing published yet. Write a draft on the
+                    {' '}
+                    <Link to="/drafts">drafts</Link>
+                    {' '}
+                    page and publish it.
+                  </p>
+                )
             : (
                 <p className="demo-empty">
-                  Nothing published yet. Write a draft on the
-                  {' '}
-                  <Link to="/drafts">drafts</Link>
-                  {' '}
-                  page and publish it.
+                  Couldn't load notes.
                 </p>
               )
-          : null}
+          : (
+              <p className="demo-empty">
+                Press <strong>Try it</strong> to create a sandbox account and start writing.
+              </p>
+            )}
       </div>
     </DemoShell>
   )

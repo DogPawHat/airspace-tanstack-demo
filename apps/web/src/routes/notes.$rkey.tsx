@@ -7,7 +7,7 @@ import { accountQuery, noteQuery, useAccount, useNote } from '../queries.ts'
 export const Route = createFileRoute('/notes/$rkey')({
   loader: ({ context, params }) =>
     Promise.all([
-      context.queryClient.ensureQueryData(noteQuery(params.rkey)),
+      context.queryClient.ensureQueryData(noteQuery(params.rkey)).catch(() => null),
       context.queryClient.ensureQueryData(accountQuery()),
     ]),
   component: NotePage,
@@ -80,7 +80,9 @@ function NotePage() {
                   <Link to="/" className="back">← Notes</Link>
                   <h1>Note</h1>
                 </header>
-                <p className="demo-empty">no such note</p>
+                <p className="demo-empty">
+                  {account ? 'no such note' : <>Press <strong>Try it</strong> to create a sandbox account first.</>}
+                </p>
               </>
             )}
       </div>

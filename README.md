@@ -14,12 +14,21 @@ pnpm workspace with:
 ```sh
 pnpm install
 pnpm pds           # demo PDS on localhost:2583 (in-memory PLC, throwaway data dir)
-pnpm pds:account   # (once, with PDS running) create alice.test, prints dotenv-shaped creds # PDS_ADMIN_PASSWORD=admin
+pnpm pds:account   # (optional) seed a fixed alice.test account for `pnpm --filter web seed`
 
-pnpm dev           # web app, http://localhost:5173 — reads apps/web/.env
+PDS_ADMIN_PASSWORD=admin pnpm pds:invite   # mint an invite code (the local PDS is invite-only)
 ```
 
-`apps/web/.env` (see `.env.example`): `AIRSPACE_SERVICE`, `AIRSPACE_IDENTIFIER`, `AIRSPACE_PASSWORD`.
+`apps/web/.env` (see `.env.example`): `AIRSPACE_SERVICE`, `AIRSPACE_INVITE_CODE`,
+`SESSION_PASSWORD` (any 32+ char string), and optionally
+`AIRSPACE_IDENTIFIER`/`AIRSPACE_PASSWORD` for seeding.
+
+```sh
+pnpm dev           # web app, http://localhost:5173
+```
+
+Visitors press **Try it** to get their own throwaway `demo-*` account on the PDS,
+kept in an encrypted session cookie; **Sign out** clears it and the server caches.
 
 Other helpers: `pnpm pds:invite` (mint an invite code, needs `PDS_ADMIN_PASSWORD`),
 `pnpm pds:smoke`, `pnpm pds:reset`, `pnpm typecheck`, `pnpm build`.

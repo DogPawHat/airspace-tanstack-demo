@@ -11,6 +11,6 @@
   port = 3000
 
 [build.environment]
-  # AIRSPACE_SERVICE / AIRSPACE_IDENTIFIER / AIRSPACE_PASSWORD are secrets, set
-  # in the Netlify UI or via `netlify env:set`.
+  # AIRSPACE_SERVICE / SESSION_PASSWORD / AIRSPACE_INVITE_CODE (or
+  # PDS_ADMIN_PASSWORD) are secrets, set in the Netlify UI or via `netlify env:set`.
   NODE_VERSION = "22"

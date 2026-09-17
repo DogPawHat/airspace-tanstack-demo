@@ -16,10 +16,6 @@ export const accountQuery = () => ({
   queryFn: () => getAccount(),
 })
 
-export function useAccount() {
-  return useQuery(accountQuery())
-}
-
 export const notesQuery = () => ({
   queryKey: ['notes'],
   queryFn: () => getNotes(),
@@ -39,6 +35,10 @@ export const draftsQuery = () => ({
   queryKey: ['drafts'],
   queryFn: () => getDrafts(),
 })
+
+export function useAccount() {
+  return useQuery(accountQuery())
+}
 
 export function useNotes() {
   return useQuery(notesQuery())

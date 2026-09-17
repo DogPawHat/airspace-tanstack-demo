@@ -6,15 +6,19 @@ import { useRef, useState } from 'react'
 
 import { DemoShell } from '../components/DemoShell.tsx'
 import { createDraft, publishDraft } from '../server/air.ts'
-import { draftsQuery, useDrafts } from '../queries.ts'
+import { accountQuery, draftsQuery, useAccount, useDrafts } from '../queries.ts'
 
 export const Route = createFileRoute('/drafts')({
-  loader: ({ context }) => context.queryClient.ensureQueryData(draftsQuery()),
+  loader: ({ context }) => Promise.all([
+    context.queryClient.ensureQueryData(accountQuery()),
+    context.queryClient.ensureQueryData(draftsQuery()).catch(() => null),
+  ]),
   component: DraftsPage,
 })
 
 function DraftsPage() {
   const { data } = useDrafts()
+  const { data: account } = useAccount()
   const createDraftFn = useServerFn(createDraft)
   const publishDraftFn = useServerFn(publishDraft)
   const formRef = useRef<HTMLFormElement>(null)
@@ -23,6 +27,23 @@ function DraftsPage() {
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
   const queryClient = useQueryClient()
+
+  if (!account) {
+    return (
+      <DemoShell>
+        <div className="demo-page">
+          <header>
+            <span className="icon" aria-hidden="true">◐</span>
+            <h1>Drafts</h1>
+            <p>Private to this account, in a permissioned space. Publishing copies a draft into the public repo.</p>
+          </header>
+          <p className="demo-empty">
+            Press <strong>Try it</strong> to create a sandbox account first.
+          </p>
+        </div>
+      </DemoShell>
+    )
+  }
 
   if (!data)
     return null

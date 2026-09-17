@@ -10,7 +10,7 @@ import { accountQuery, profileQuery, useAccount, useProfile } from '../queries.t
 export const Route = createFileRoute('/profile')({
   loader: ({ context }) =>
     Promise.all([
-      context.queryClient.ensureQueryData(profileQuery()),
+      context.queryClient.ensureQueryData(profileQuery()).catch(() => null),
       context.queryClient.ensureQueryData(accountQuery()),
     ]),
   component: ProfilePage,
@@ -63,40 +63,46 @@ function ProfilePage() {
 
         {account
           ? (
-              <dl className="demo-props">
-                <dt>handle</dt>
-                <dd><code>{account.handle}</code></dd>
-                <dt>did</dt>
-                <dd><code>{account.did}</code></dd>
-                <dt>record</dt>
-                <dd>
-                  <a
-                    href={`https://pdsls.dev/at://${account.did}/space.getair.notes.profile/self`}
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    view on pdsls ↗
-                  </a>
-                </dd>
-              </dl>
-            )
-          : null}
+              <>
+                <dl className="demo-props">
+                  <dt>handle</dt>
+                  <dd><code>{account.handle}</code></dd>
+                  <dt>did</dt>
+                  <dd><code>{account.did}</code></dd>
+                  <dt>record</dt>
+                  <dd>
+                    <a
+                      href={`https://pdsls.dev/at://${account.did}/space.getair.notes.profile/self`}
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      view on pdsls ↗
+                    </a>
+                  </dd>
+                </dl>
 
-        <form className="demo-form" onSubmit={e => void save()}>
-          <h3>Edit</h3>
-          <input
-            value={displayName}
-            onChange={e => setDisplayName(e.target.value)}
-            placeholder="Display name"
-            required
-          />
-          <textarea value={bio} onChange={e => setBio(e.target.value)} rows={3} placeholder="Bio" />
-          <footer>
-            <button type="submit" disabled={busy}>{busy ? 'Saving…' : 'Save'}</button>
-            {error ? <p className="error" role="alert">{error}</p> : null}
-            {notice && !error ? <p className="ok" role="status">{notice}</p> : null}
-          </footer>
-        </form>
+                <form className="demo-form" onSubmit={e => void save()}>
+                  <h3>Edit</h3>
+                  <input
+                    value={displayName}
+                    onChange={e => setDisplayName(e.target.value)}
+                    placeholder="Display name"
+                    required
+                  />
+                  <textarea value={bio} onChange={e => setBio(e.target.value)} rows={3} placeholder="Bio" />
+                  <footer>
+                    <button type="submit" disabled={busy}>{busy ? 'Saving…' : 'Save'}</button>
+                    {error ? <p className="error" role="alert">{error}</p> : null}
+                    {notice && !error ? <p className="ok" role="status">{notice}</p> : null}
+                  </footer>
+                </form>
+              </>
+            )
+          : (
+              <p className="demo-empty">
+                Press <strong>Try it</strong> to create a sandbox account first.
+              </p>
+            )}
       </div>
     </DemoShell>
   )
