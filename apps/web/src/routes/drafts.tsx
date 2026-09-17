@@ -6,10 +6,9 @@ import { useRef, useState } from 'react'
 
 import { DemoShell } from '../components/DemoShell.tsx'
 import { createDraft, publishDraft } from '../server/air.ts'
-import { draftsQuery, useDrafts } from '../queries.ts'
+import { useDrafts } from '../queries.ts'
 
 export const Route = createFileRoute('/drafts')({
-  loader: ({ context }) => context.queryClient.ensureQueryData(draftsQuery()),
   component: DraftsPage,
 })
 
@@ -25,7 +24,7 @@ function DraftsPage() {
   const queryClient = useQueryClient()
 
   if (!data)
-    return null
+    return <DemoShell><p className="demo-empty">Create a sandbox account to use drafts.</p></DemoShell>
 
   const tagName = (draft: typeof data.drafts[number]) => {
     if (!draft.value.tag)
@@ -104,7 +103,7 @@ function DraftsPage() {
             )
           : <p className="demo-empty">No drafts yet.</p>}
 
-        <form ref={formRef} className="demo-form" onSubmit={e => void create()}>
+        <form ref={formRef} className="demo-form" onSubmit={(event) => { event.preventDefault(); void create() }}>
           <h3>New draft</h3>
           <input name="title" placeholder="Title" required />
           <textarea name="body" rows={5} placeholder="Body, in markdown" />

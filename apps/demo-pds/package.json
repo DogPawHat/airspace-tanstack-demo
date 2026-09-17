@@ -9,7 +9,6 @@
   "scripts": {
     "start": "node server.mjs",
     "dev": "node local.mjs",
-    "account": "node account.mjs",
     "invite": "node invite.mjs",
     "smoke": "node smoke.mjs",
     "reset": "node reset.mjs"

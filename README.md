@@ -14,12 +14,13 @@ pnpm workspace with:
 ```sh
 pnpm install
 pnpm pds           # demo PDS on localhost:2583 (in-memory PLC, throwaway data dir)
-pnpm pds:account   # (once, with PDS running) create alice.test, prints dotenv-shaped creds # PDS_ADMIN_PASSWORD=admin
+pnpm pds:invite    # mint an invite code when the PDS requires one
 
-pnpm dev           # web app, http://localhost:5173 — reads apps/web/.env
+pnpm dev           # web app, http://localhost:5173 — each visitor creates a sandbox account
 ```
 
-`apps/web/.env` (see `.env.example`): `AIRSPACE_SERVICE`, `AIRSPACE_IDENTIFIER`, `AIRSPACE_PASSWORD`.
+`apps/web/.env` (see `.env.example`): `AIRSPACE_SERVICE`, `AIRSPACE_PDS_INVITE_CODE`, and a
+32+ character `AIRSPACE_SESSION_SECRET`.
 
 Other helpers: `pnpm pds:invite` (mint an invite code, needs `PDS_ADMIN_PASSWORD`),
 `pnpm pds:smoke`, `pnpm pds:reset`, `pnpm typecheck`, `pnpm build`.

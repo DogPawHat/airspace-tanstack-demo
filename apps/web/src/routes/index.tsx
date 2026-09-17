@@ -2,10 +2,9 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 
 import { DemoShell } from '../components/DemoShell.tsx'
-import { accountQuery, notesQuery, useAccount, useNotes } from '../queries.ts'
+import { useAccount, useNotes } from '../queries.ts'
 
 export const Route = createFileRoute('/')({
-  loader: ({ context }) => context.queryClient.ensureQueryData(notesQuery()),
   component: HomePage,
 })
 
@@ -30,8 +29,8 @@ function HomePage() {
             ? <p>{data.profile.bio}</p>
             : (
                 <p>
-                  A notes app on a service account on our own PDS. Published notes live in the
-                  account's public repo, drafts in a permissioned space.
+                  Create a throwaway sandbox account to try Airspace. Published notes live in
+                  its public repo, while drafts stay in a permissioned space.
                 </p>
               )}
         </header>

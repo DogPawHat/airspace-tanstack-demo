@@ -8,5 +8,5 @@
 
 [build.environment]
   # Set these in the Netlify UI instead (they're secrets):
-  # AIRSPACE_SERVICE, AIRSPACE_IDENTIFIER, AIRSPACE_PASSWORD
+  # AIRSPACE_SERVICE, AIRSPACE_PDS_INVITE_CODE, AIRSPACE_SESSION_SECRET
   NODE_VERSION = "22"

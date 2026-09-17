@@ -2,28 +2,18 @@ import { createAirspace, passwordSession } from 'airspace'
 import { timestamps } from 'airspace/plugins/timestamps'
 
 import { profile, workspace } from '../../collections.ts'
+import { requireAccount } from './session.ts'
+import type { DemoAccount } from './session.ts'
 
-export interface DemoAccount {
-  did: string
-  handle: string
-  service: string
-}
-
-let account: DemoAccount | undefined
-
-export async function createNotesAirspace() {
+async function createNotesAirspace(account: DemoAccount) {
   const service = process.env.AIRSPACE_SERVICE ?? 'http://localhost:2583'
-  const identifier = process.env.AIRSPACE_IDENTIFIER ?? 'alice.test'
-  const password = process.env.AIRSPACE_PASSWORD ?? 'hunter2'
-
   const session = await passwordSession({
     service,
-    identifier,
-    password,
+    identifier: account.handle,
+    password: account.password,
   })
-  account = { did: session.did, handle: session.handle, service }
   const airspace = createAirspace({
-    identity: { did: session.did, service },
+    identity: { did: account.did as `did:${string}:${string}`, service },
     collections: { profile },
     spaces: { workspace },
     plugins: [timestamps()],
@@ -34,20 +24,42 @@ export async function createNotesAirspace() {
   return airspace
 }
 
-let pending: Promise<AirspaceInstance> | undefined
+const ttl = 15 * 60_000
+const limit = 100
+const instances = new Map<string, { at: number, instance: Promise<AirspaceInstance> }>()
 
-export function useAirspace(): Promise<AirspaceInstance> {
-  pending ??= createNotesAirspace()
-  return pending
+export async function useAirspace(): Promise<AirspaceInstance> {
+  const account = await requireAccount()
+  return instanceFor(account)
 }
 
-/** The demo service account the web app writes through. */
-export async function getDemoAccount(): Promise<DemoAccount> {
-  pending ??= createNotesAirspace()
-  await pending
-  if (!account)
-    throw new Error('no demo account')
-  return account
+export async function airspaceFor(account: DemoAccount): Promise<AirspaceInstance> {
+  return instanceFor(account)
+}
+
+async function instanceFor(account: DemoAccount): Promise<AirspaceInstance> {
+  const now = Date.now()
+  for (const [did, entry] of instances) {
+    if (now - entry.at > ttl)
+      instances.delete(did)
+  }
+  const hit = instances.get(account.did)
+  if (hit) {
+    hit.at = now
+    return await hit.instance
+  }
+  if (instances.size >= limit)
+    instances.delete(instances.keys().next().value!)
+  const instance = createNotesAirspace(account)
+  instances.set(account.did, { at: now, instance })
+  return await instance.catch((error) => {
+    instances.delete(account.did)
+    throw error
+  })
+}
+
+export function forgetAirspace(did: string) {
+  instances.delete(did)
 }
 
 export type AirspaceInstance = Awaited<ReturnType<typeof createNotesAirspace>>

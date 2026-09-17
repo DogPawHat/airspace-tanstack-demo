@@ -1,23 +1,12 @@
 # demo-pds
 
-> This directory is copied from [`danielroe/airspace` `demo-pds/`](https://github.com/danielroe/airspace/tree/main/demo-pds)
-> (commit `5f06bd7`) and adapted into this repo's pnpm workspace: the alpha-package pinning now
-> lives in the root `pnpm-workspace.yaml`, and the `Dockerfile` expects a build context of the
-> repo root (`docker build` from the monorepo root, or `fly deploy -c apps/demo-pds/fly.toml .`).
-> Note that `[build] dockerfile` in `fly.toml` is resolved relative to the fly.toml's own
-> directory, not the deploy working directory, so it reads `dockerfile = 'Dockerfile'`.
-> The Dockerfile mirrors the pnpm workspace layout at runtime: it copies both the root
-> `node_modules` (virtual store) and `apps/demo-pds/node_modules` (package symlinks), and
-> runs `server.mjs` from `apps/demo-pds`, so `@atproto/pds` resolves.
-
-This is the PDS behind the demo at [getair.space/demo](https://getair.space/demo): the reference atproto PDS from the permissioned spaces alpha, invite-only, holding throwaway accounts that a daily job deletes.
+This is the PDS behind the demo at [airspace-demo.dogpawhat.tech](https://airspace-demo.dogpawhat.tech): the reference atproto PDS from the permissioned spaces alpha, invite-only, holding throwaway accounts that a daily job deletes.
 
 `@atproto/pds` reads its whole configuration from the environment and exports `PDS.run()`, so `server.mjs` is six lines and everything else is an environment variable. `.env.example` lists every one this deployment sets, with a comment on each.
 
 ```sh
 pnpm install
 pnpm dev          # localhost:2583, in-memory PLC, throwaway data directory
-pnpm account      # create a stable account, prints dotenv-shaped credentials
 pnpm invite       # mint an invite code (needs PDS_ADMIN_PASSWORD)
 pnpm smoke        # create an account, write a record, create a space, write and read a space record
 pnpm reset        # delete every account older than 24 hours
@@ -30,18 +19,18 @@ Secrets live in `fly secrets`, never in this repo. Generate them with `openssl r
 
 ## deployment
 
-Deployed to [Fly](https://fly.io) as `airspace-demo-pds`, on a push to `main` that touches this directory. `fly.toml` mounts a 1 GB volume at `/data`, serves `[http_service]` on 443, and health-checks `/xrpc/_health`.
+Deployed to [Fly](https://fly.io) as `airspace-demo-pds-blue-morning-4282`, on a push to `main` that touches this directory. `fly.toml` mounts a 1 GB volume at `/data`, serves `[http_service]` on 443, and health-checks `/xrpc/_health`.
 
 First-time setup:
 
 ```sh
 fly volumes create pds_data --size 1
 fly secrets set PDS_JWT_SECRET=... PDS_DPOP_SECRET=... PDS_ADMIN_PASSWORD=... PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX=...
-fly certs add pds.demo.getair.space
-fly certs add '*.demo.getair.space'
+fly certs add pds.airspace-demo.dogpawhat.tech
+fly certs add '*.pds.airspace-demo.dogpawhat.tech'
 ```
 
-Both `pds.demo.getair.space` and `*.demo.getair.space` need `A`/`AAAA` records and TLS. Handle resolution fetches `https://<handle>/.well-known/atproto-did`, which the PDS answers from the `Host` header, so every handle it hands out has to reach it.
+Both `pds.airspace-demo.dogpawhat.tech` and `*.pds.airspace-demo.dogpawhat.tech` need `A`/`AAAA` records and TLS. Handle resolution fetches `https://<handle>/.well-known/atproto-did`, which the PDS answers from the `Host` header, so every handle it hands out has to reach it.
 
 `PDS_HOSTNAME` is baked into each account's `did:plc` genesis operation as its service endpoint, so changing it orphans every existing account. The same goes for `PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX`.
 
@@ -51,14 +40,14 @@ Both `pds.demo.getair.space` and `*.demo.getair.space` need `A`/`AAAA` records a
 
 ```sh
 fly machine run --schedule daily --command "node reset.mjs" \
-  --env PDS_SERVICE=https://pds.demo.getair.space registry.fly.io/airspace-demo-pds:latest
+  --env PDS_SERVICE=https://pds.airspace-demo.dogpawhat.tech registry.fly.io/airspace-demo-pds-blue-morning-4282:latest
 ```
 
 ## notes
 
 - `@atproto/pds@0.0.0-spaces-alpha-20260910230440`, the published build of atproto's `permissioned-data` branch. Those packages depend on each other with `^0.0.0-spaces-alpha-*` ranges, which also match unrelated broken `0.0.0` releases, so `pnpm-workspace.yaml` pins every one of them. The airspace test suite pins `@atproto/dev-env` to the same build.
 - `PDS_DEV_MODE` is local only, set by `local.mjs`, because the PDS refuses to start on `http://` without it. It also turns off SSRF protection, so never set it on the deployed host.
-- Invite codes cannot be chosen: `pnpm invite` mints one and prints it, and the docs deployment passes it as `NUXT_PDS_INVITE_CODE`. To cut the demo off, mint a fresh code and change that variable, or call `com.atproto.admin.disableInviteCodes`.
+- Invite codes cannot be chosen: `pnpm invite` mints one and prints it, and the web deployment passes it as `AIRSPACE_PDS_INVITE_CODE`. To cut the demo off, mint a fresh code and change that variable, or call `com.atproto.admin.disableInviteCodes`.
 - `local.mjs` runs `@did-plc/server` in memory on port 2582, so local runs never write to `plc.directory`. The real directory is public and permanent: every throwaway account leaves a `did:plc` behind that deleting the account does not remove.
 - Space writes create the space, so an owner writing to their own space needs no `createSpace` call, and `com.atproto.simplespace.getSpace` answers `SpaceNotFound` for such a space even while `listSpaces` lists it.
 - The PDS does not validate third-party lexicons in spaces ([atproto#5433](https://github.com/bluesky-social/atproto/issues/5433)), which is why `smoke.mjs` passes `validate: false` and airspace validates space records itself.

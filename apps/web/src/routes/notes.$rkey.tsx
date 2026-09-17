@@ -2,14 +2,9 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { MarkdownDocument } from '@comark/react'
 
 import { DemoShell } from '../components/DemoShell.tsx'
-import { accountQuery, noteQuery, useAccount, useNote } from '../queries.ts'
+import { useAccount, useNote } from '../queries.ts'
 
 export const Route = createFileRoute('/notes/$rkey')({
-  loader: ({ context, params }) =>
-    Promise.all([
-      context.queryClient.ensureQueryData(noteQuery(params.rkey)),
-      context.queryClient.ensureQueryData(accountQuery()),
-    ]),
   component: NotePage,
 })
 

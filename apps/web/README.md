@@ -2,12 +2,10 @@ Demo of [airspace](https://getair.space) running on TanStack Start + TanStack Qu
 
 ## Run it
 
-The app expects a PDS on `http://localhost:2583` (the one from the airspace repo):
+The app expects the demo PDS on `http://localhost:2583`:
 
 ```sh
-cd ../airspace
-pnpm install
-pnpm dev:pds        # prints credentials for alice and bob
+pnpm pds
 ```
 
 Then, here:
@@ -29,9 +27,11 @@ Netlify function at `.netlify/v1/functions/server.mjs`. The Netlify plugin is bu
 (it needs Deno for its local edge-functions emulation). Local production emulation:
 `npm i -g netlify-cli && netlify dev`.
 
-Config lives in `.env` (see `.env.example`): `AIRSPACE_SERVICE`, `AIRSPACE_IDENTIFIER`, `AIRSPACE_PASSWORD`.
+Config lives in `.env` (see `.env.example`): `AIRSPACE_SERVICE`, the optional
+`AIRSPACE_PDS_INVITE_CODE`, and a 32+ character `AIRSPACE_SESSION_SECRET`.
 
-For deployment, set those three as Netlify environment variables (they're secrets). Note the
+For deployment, set those variables in the hosting environment. The invite code and session
+secret are server-only secrets. Note the
 deployed copy will reach whatever PDS `AIRSPACE_SERVICE` points at — the localhost dev PDS is
 only reachable locally, so use a publicly-reachable PDS for Netlify. Note/cover image URLs come
 from the PDS too, so those must be public for visitors.
@@ -45,7 +45,8 @@ node seed.ts
 ## Layout
 
 - `lexicons.ts` / `collections.ts` — copied unchanged from the Nuxt example
-- `src/server/airspace.ts` — lazy server-side singleton airspace instance (env-configured session)
+- `src/server/session.ts` — encrypted, HTTP-only visitor sandbox session
+- `src/server/airspace.ts` — bounded per-DID Airspace client cache
 - `src/server/air.ts` — all server functions (`createServerFn`): reads from loaders, writes (profile, draft create via FormData upload, publish)
 - `src/queries.ts` — TanStack Query definitions wrapping the server functions
 - `src/routes/` — notes list, note detail (comark markdown render), drafts, profile

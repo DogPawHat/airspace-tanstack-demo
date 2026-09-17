@@ -1,33 +1,67 @@
 import type { ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
+import { useServerFn } from '@tanstack/react-start'
+import { useQueryClient } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import { useAccount } from '../queries.ts'
+import { createAccount, resetSandbox, signOut } from '../server/air.ts'
 
 /**
  * Port of the upstream airspace docs app `DemoShell.vue`: a sticky sidebar with
- * the demo account and section nav, next to the page content. This port has no
- * sandbox-account flow, so the account is the fixed service account the web app
- * writes through.
+ * the visitor's sandbox account and section nav, next to the page content.
  */
 export function DemoShell({ children }: { children: ReactNode }) {
   const { data: account } = useAccount()
-  if (!account)
-    return null
-  const name = account.handle.split('.')[0]
-  const domain = account.handle.slice(account.handle.indexOf('.'))
-  const repoUrl = `https://pdsls.dev/at://${account.did}`
+  const create = useServerFn(createAccount)
+  const reset = useServerFn(resetSandbox)
+  const logout = useServerFn(signOut)
+  const queryClient = useQueryClient()
+  const [task, setTask] = useState<'start' | 'reset' | 'signOut' | null>(null)
+  const [error, setError] = useState('')
+  const [step, setStep] = useState(0)
+  const steps = ['asking the PDS for an account', 'signing in', 'writing a profile and two tags']
+  const busy = task !== null
+  const name = account?.handle.split('.')[0]
+  const domain = account?.handle.slice(account.handle.indexOf('.'))
+
+  useEffect(() => {
+    if (task !== 'start')
+      return
+    const ticker = window.setInterval(() => setStep(value => Math.min(value + 1, steps.length - 1)), 1500)
+    return () => window.clearInterval(ticker)
+  }, [task])
+
+  async function run(next: Exclude<typeof task, null>, action: () => Promise<unknown>) {
+    setTask(next)
+    setError('')
+    setStep(0)
+    try {
+      await action()
+      queryClient.removeQueries({ queryKey: ['notes'] })
+      queryClient.removeQueries({ queryKey: ['drafts'] })
+      queryClient.removeQueries({ queryKey: ['profile'] })
+      await queryClient.invalidateQueries({ queryKey: ['account'] })
+    }
+    catch (cause) {
+      setError((cause as Error).message ?? 'something went wrong')
+    }
+    finally {
+      setTask(null)
+    }
+  }
 
   return (
     <div className="demo">
       <aside className="side">
         <div className="who">
-          <span className="avatar" aria-hidden="true">{name.charAt(0)}</span>
+          <span className={`avatar${account ? '' : ' empty'}`} aria-hidden="true">{name?.charAt(0)}</span>
           <span className="handle">
-            <strong>{name}</strong>
-            <small>{domain}</small>
+            <strong>{name ?? 'no account'}</strong>
+            <small>{domain ?? 'sandbox'}</small>
           </span>
         </div>
 
-        <nav className="side-nav" aria-label="Demo">
+        {account ? <nav className="side-nav" aria-label="Demo">
           <Link to="/" activeOptions={{ exact: true }} activeProps={{ className: 'router-link-exact-active' }}>
             <span aria-hidden="true">◇</span>
             Notes
@@ -40,16 +74,25 @@ export function DemoShell({ children }: { children: ReactNode }) {
             <span aria-hidden="true">○</span>
             Profile
           </Link>
-          <a href={repoUrl} target="_blank" rel="noopener">
+          <a href={`https://pdsls.dev/at://${account.did}`} target="_blank" rel="noopener">
             <span aria-hidden="true">↗</span>
             Public repo on pdsls
           </a>
-        </nav>
+        </nav> : null}
 
-        <p className="hint">
-          This demo writes through a service account on our demo PDS. Everything it
-          publishes is in the account's public repo, and its workspace space holds the drafts.
-        </p>
+        <div className="side-actions">
+          {account
+            ? <>
+                <button disabled={busy} onClick={() => void run('reset', reset)}>{task === 'reset' ? 'Resetting…' : 'Reset notes'}</button>
+                <button disabled={busy} onClick={() => void run('signOut', logout)}>{task === 'signOut' ? 'Signing out…' : 'Sign out'}</button>
+              </>
+            : <>
+                <button className="primary" disabled={busy} onClick={() => void run('start', create)}>{task === 'start' ? 'Creating…' : 'Try it'}</button>
+                <p className="hint">Makes a throwaway account on our demo PDS and keeps its credentials in an encrypted cookie. Your own account isn't touched.</p>
+              </>}
+        </div>
+        {task === 'start' ? <div className="progress" role="status" aria-live="polite"><div className="bar" aria-hidden="true"><span style={{ width: `${((step + 1) / (steps.length + 1)) * 100}%` }} /></div><p>{steps[step]}…</p></div> : null}
+        {error ? <p className="error" role="alert">{error} <button className="link" disabled={busy} onClick={() => setError('')}>dismiss</button></p> : null}
       </aside>
 
       <section className="page">

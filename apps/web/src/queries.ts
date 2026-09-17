@@ -20,37 +20,45 @@ export function useAccount() {
   return useQuery(accountQuery())
 }
 
-export const notesQuery = () => ({
-  queryKey: ['notes'],
+export const notesQuery = (did?: string) => ({
+  queryKey: ['notes', did],
   queryFn: () => getNotes(),
+  enabled: Boolean(did),
 })
 
-export const noteQuery = (rkey: string) => ({
-  queryKey: ['notes', rkey],
+export const noteQuery = (rkey: string, did?: string) => ({
+  queryKey: ['notes', did, rkey],
   queryFn: () => getNote({ data: rkey }),
+  enabled: Boolean(did),
 })
 
-export const profileQuery = () => ({
-  queryKey: ['profile'],
+export const profileQuery = (did?: string) => ({
+  queryKey: ['profile', did],
   queryFn: () => getProfile(),
+  enabled: Boolean(did),
 })
 
-export const draftsQuery = () => ({
-  queryKey: ['drafts'],
+export const draftsQuery = (did?: string) => ({
+  queryKey: ['drafts', did],
   queryFn: () => getDrafts(),
+  enabled: Boolean(did),
 })
 
 export function useNotes() {
-  return useQuery(notesQuery())
+  const { data: account } = useAccount()
+  return useQuery(notesQuery(account?.did))
 }
 export function useNote(rkey: string) {
-  return useQuery(noteQuery(rkey))
+  const { data: account } = useAccount()
+  return useQuery(noteQuery(rkey, account?.did))
 }
 export function useProfile() {
-  return useQuery(profileQuery())
+  const { data: account } = useAccount()
+  return useQuery(profileQuery(account?.did))
 }
 export function useDrafts() {
-  return useQuery(draftsQuery())
+  const { data: account } = useAccount()
+  return useQuery(draftsQuery(account?.did))
 }
 export function useInvalidate() {
   const queryClient = useQueryClient()

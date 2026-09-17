@@ -5,14 +5,9 @@ import { useEffect, useState } from 'react'
 
 import { DemoShell } from '../components/DemoShell.tsx'
 import { saveProfile } from '../server/air.ts'
-import { accountQuery, profileQuery, useAccount, useProfile } from '../queries.ts'
+import { useAccount, useProfile } from '../queries.ts'
 
 export const Route = createFileRoute('/profile')({
-  loader: ({ context }) =>
-    Promise.all([
-      context.queryClient.ensureQueryData(profileQuery()),
-      context.queryClient.ensureQueryData(accountQuery()),
-    ]),
   component: ProfilePage,
 })
 
@@ -82,7 +77,7 @@ function ProfilePage() {
             )
           : null}
 
-        <form className="demo-form" onSubmit={e => void save()}>
+        {account ? <form className="demo-form" onSubmit={(event) => { event.preventDefault(); void save() }}>
           <h3>Edit</h3>
           <input
             value={displayName}
@@ -96,7 +91,7 @@ function ProfilePage() {
             {error ? <p className="error" role="alert">{error}</p> : null}
             {notice && !error ? <p className="ok" role="status">{notice}</p> : null}
           </footer>
-        </form>
+        </form> : <p className="demo-empty">Create a sandbox account to edit a profile.</p>}
       </div>
     </DemoShell>
   )
