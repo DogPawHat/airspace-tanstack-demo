@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 import {
   createDraft,
+  getAccount,
   getDrafts,
   getNote,
   getNotes,
@@ -9,6 +10,15 @@ import {
   publishDraft,
   saveProfile,
 } from './server/air.ts'
+
+export const accountQuery = () => ({
+  queryKey: ['account'],
+  queryFn: () => getAccount(),
+})
+
+export function useAccount() {
+  return useQuery(accountQuery())
+}
 
 export const notesQuery = () => ({
   queryKey: ['notes'],

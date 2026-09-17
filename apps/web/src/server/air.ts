@@ -1,7 +1,11 @@
 import { createServerFn } from '@tanstack/react-start'
 import { parseAtUri } from 'airspace'
 
-import { useAirspace } from './airspace.ts'
+import { getDemoAccount, useAirspace } from './airspace.ts'
+
+export const getAccount = createServerFn({ method: 'GET', strict: false }).handler(async () => {
+  return await getDemoAccount()
+})
 
 export const getNotes = createServerFn({ method: 'GET', strict: false }).handler(async () => {
   const airspace = await useAirspace()
