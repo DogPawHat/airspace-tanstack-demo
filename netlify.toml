@@ -1,0 +1,16 @@
+# Monorepo entry point: the TanStack Start app lives in apps/web.
+# The repo-root netlify.toml wins over site-level build settings, so this
+# replicates apps/web/netlify.toml with the monorepo base directory.
+[build]
+  base = "apps/web"
+  command = "vite build"
+  publish = "dist/client"
+
+[dev]
+  command = "vite dev"
+  port = 3000
+
+[build.environment]
+  # AIRSPACE_SERVICE / AIRSPACE_IDENTIFIER / AIRSPACE_PASSWORD are secrets, set
+  # in the Netlify UI or via `netlify env:set`.
+  NODE_VERSION = "22"

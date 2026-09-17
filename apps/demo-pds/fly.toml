@@ -1,9 +1,14 @@
-app = 'airspace-demo-pds'
+# fly.toml app configuration file generated for airspace-demo-pds-blue-morning-4282 on 2026-09-17T14:25:34+01:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'airspace-demo-pds-blue-morning-4282'
 primary_region = 'lhr'
 
 [build]
-  # Deploy from the monorepo root: `fly deploy --config apps/demo-pds/fly.toml .`
-  dockerfile = 'apps/demo-pds/Dockerfile'
+  # Resolved relative to this fly.toml, not the deploy working directory.
+  dockerfile = 'Dockerfile'
 
 [env]
   LOG_ENABLED = '1'
@@ -14,10 +19,10 @@ primary_region = 'lhr'
   PDS_DATA_DIRECTORY = '/data'
   PDS_DID_PLC_URL = 'https://plc.directory'
   PDS_HOME_URL = 'https://getair.space'
-  PDS_HOSTNAME = 'pds.demo.getair.space'
+  PDS_HOSTNAME = 'pds.airspace-demo.dogpawhat.tech'
   PDS_INVITE_REQUIRED = '1'
   PDS_PORT = '3000'
-  PDS_SERVICE_HANDLE_DOMAINS = '.demo.getair.space'
+  PDS_SERVICE_HANDLE_DOMAINS = '.pds.airspace-demo.dogpawhat.tech'
   PDS_SERVICE_NAME = 'airspace demo'
 
 [[mounts]]

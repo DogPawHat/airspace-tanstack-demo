@@ -3,7 +3,12 @@
 > This directory is copied from [`danielroe/airspace` `demo-pds/`](https://github.com/danielroe/airspace/tree/main/demo-pds)
 > (commit `5f06bd7`) and adapted into this repo's pnpm workspace: the alpha-package pinning now
 > lives in the root `pnpm-workspace.yaml`, and the `Dockerfile` expects a build context of the
-> repo root (`docker build` from the monorepo root, or `fly deploy -c apps/demo-pds/fly.toml --dockerfile apps/demo-pds/Dockerfile .`).
+> repo root (`docker build` from the monorepo root, or `fly deploy -c apps/demo-pds/fly.toml .`).
+> Note that `[build] dockerfile` in `fly.toml` is resolved relative to the fly.toml's own
+> directory, not the deploy working directory, so it reads `dockerfile = 'Dockerfile'`.
+> The Dockerfile mirrors the pnpm workspace layout at runtime: it copies both the root
+> `node_modules` (virtual store) and `apps/demo-pds/node_modules` (package symlinks), and
+> runs `server.mjs` from `apps/demo-pds`, so `@atproto/pds` resolves.
 
 This is the PDS behind the demo at [getair.space/demo](https://getair.space/demo): the reference atproto PDS from the permissioned spaces alpha, invite-only, holding throwaway accounts that a daily job deletes.
 
