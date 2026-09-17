@@ -79,7 +79,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             </div>
           </header>
 
-          <main>
+          <main className="wide">
             {children}
           </main>
 
