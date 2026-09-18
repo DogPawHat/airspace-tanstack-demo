@@ -41,7 +41,7 @@ const account = await xrpc('com.atproto.server.createAccount', {
 const { did, accessJwt: token } = account
 step(`createAccount: ${handle} is ${did}`)
 
-const note = { $type: 'space.getair.notes.note', title: 'smoke', body: 'a public record', createdAt: new Date().toISOString() }
+const note = { $type: 'tech.dogpawhat.airspace-demo.notes.note', title: 'smoke', body: 'a public record', createdAt: new Date().toISOString() }
 const created = await xrpc('com.atproto.repo.createRecord', {
   token,
   body: { repo: did, collection: note.$type, record: note, validate: false },
@@ -51,7 +51,7 @@ step(`createRecord: ${created.uri}`)
 const space = await xrpc('com.atproto.simplespace.createSpace', {
   token,
   body: {
-    type: 'space.getair.notes.workspace',
+    type: 'tech.dogpawhat.airspace-demo.notes.workspace',
     skey: 'self',
     readPolicy: { $type: 'com.atproto.simplespace.defs#memberListPolicy' },
     writePolicy: { $type: 'com.atproto.simplespace.defs#memberListPolicy' },
@@ -60,7 +60,7 @@ const space = await xrpc('com.atproto.simplespace.createSpace', {
 })
 step(`createSpace: ${space.uri}`)
 
-const draft = { $type: 'space.getair.notes.note', title: 'smoke draft', body: 'a space record', createdAt: new Date().toISOString() }
+const draft = { $type: 'tech.dogpawhat.airspace-demo.notes.note', title: 'smoke draft', body: 'a space record', createdAt: new Date().toISOString() }
 const write = await xrpc('com.atproto.space.createRecord', {
   token,
   body: { space: space.uri, repo: did, collection: draft.$type, record: draft, validate: false },

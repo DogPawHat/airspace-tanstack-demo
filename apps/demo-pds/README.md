@@ -17,7 +17,6 @@ This is the PDS behind the demo at [getair.space/demo](https://getair.space/demo
 ```sh
 pnpm install
 pnpm dev          # localhost:2583, in-memory PLC, throwaway data directory
-pnpm account      # create a stable account, prints dotenv-shaped credentials
 pnpm invite       # mint an invite code (needs PDS_ADMIN_PASSWORD)
 pnpm smoke        # create an account, write a record, create a space, write and read a space record
 pnpm reset        # delete every account older than 24 hours

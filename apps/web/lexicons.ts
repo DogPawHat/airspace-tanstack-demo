@@ -1,6 +1,6 @@
 import { defineLexicons, field, space } from 'airspace/lexicon'
 
-export default defineLexicons('space.getair.notes', {
+export default defineLexicons('tech.dogpawhat.airspace-demo.notes', {
   tag: {
     name: field.text({ max: 32 }),
   },

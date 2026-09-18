@@ -17,7 +17,6 @@
     "build": "pnpm --filter web build",
     "typecheck": "pnpm -r typecheck",
     "pds": "pnpm --filter airspace-demo-pds dev",
-    "pds:account": "pnpm --filter airspace-demo-pds account",
     "pds:invite": "pnpm --filter airspace-demo-pds invite",
     "pds:smoke": "pnpm --filter airspace-demo-pds smoke",
     "pds:reset": "pnpm --filter airspace-demo-pds reset"

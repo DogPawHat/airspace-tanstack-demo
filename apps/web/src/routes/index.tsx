@@ -12,7 +12,7 @@ export const Route = createFileRoute('/')({
   component: HomePage,
 })
 
-const collection = 'space.getair.notes.note'
+const collection = 'tech.dogpawhat.airspace-demo.notes.note'
 
 function formatDate(iso: string | null | undefined) {
   return iso

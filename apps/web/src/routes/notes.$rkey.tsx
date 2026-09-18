@@ -56,7 +56,7 @@ function NotePage() {
                     {account
                       ? (
                           <a
-                            href={`https://pdsls.dev/at://${account.did}/space.getair.notes.note/${rkey}`}
+                            href={`https://pdsls.dev/at://${account.did}/tech.dogpawhat.airspace-demo.notes.note/${rkey}`}
                             target="_blank"
                             rel="noopener"
                           >

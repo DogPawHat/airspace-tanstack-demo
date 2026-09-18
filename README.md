@@ -14,7 +14,6 @@ pnpm workspace with:
 ```sh
 pnpm install
 pnpm pds           # demo PDS on localhost:2583 (in-memory PLC, throwaway data dir)
-pnpm pds:account   # (optional) seed a fixed alice.test account for `pnpm --filter web seed`
 
 PDS_ADMIN_PASSWORD=admin pnpm pds:invite   # mint an invite code (the local PDS is invite-only)
 ```

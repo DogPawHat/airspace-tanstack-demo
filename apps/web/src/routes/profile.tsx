@@ -72,7 +72,7 @@ function ProfilePage() {
                   <dt>record</dt>
                   <dd>
                     <a
-                      href={`https://pdsls.dev/at://${account.did}/space.getair.notes.profile/self`}
+                      href={`https://pdsls.dev/at://${account.did}/tech.dogpawhat.airspace-demo.notes.profile/self`}
                       target="_blank"
                       rel="noopener"
                     >
