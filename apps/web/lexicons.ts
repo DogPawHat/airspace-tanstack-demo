@@ -1,22 +1,22 @@
-import { defineLexicons, field, space } from 'airspace/lexicon'
+import { defineLexicons, field, space } from "airspace/lexicon";
 
-export default defineLexicons('tech.dogpawhat.airspace-demo.notes', {
+export default defineLexicons("tech.dogpawhat.airspace-demo.notes", {
   tag: {
     name: field.text({ max: 32 }),
   },
   note: {
-    description: 'A note. The body is markdown.',
+    description: "A note. The body is markdown.",
     title: field.text({ max: 120 }),
     body: field.markdown(),
-    tag: field.ref('tag').optional(),
+    tag: field.ref("tag").optional(),
     cover: field.image({ max: 1_000_000 }).optional(),
     createdAt: field.datetime().optional(),
     updatedAt: field.datetime().optional(),
   },
   profile: {
-    key: 'self',
+    key: "self",
     displayName: field.text({ max: 64 }),
     bio: field.text().optional(),
   },
-  workspace: space(['note', 'tag']),
-})
+  workspace: space(["note", "tag"]),
+});

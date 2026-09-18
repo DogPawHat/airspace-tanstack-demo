@@ -8,17 +8,15 @@
  *
  * Run: node server.mjs   (PORT env respected; Render sets it)
  */
-import { serve } from 'srvx/node'
-import { serveStatic } from 'srvx/static'
+import { serve } from "srvx/node";
+import { serveStatic } from "srvx/static";
 
-import handler from './dist/server/server.js'
+import handler from "./dist/server/server.js";
 
 await serve({
   port: process.env.PORT ?? 3000,
-  middleware: [
-    serveStatic({ dir: new URL('./dist/client/', import.meta.url).pathname }),
-  ],
+  middleware: [serveStatic({ dir: new URL("./dist/client/", import.meta.url).pathname })],
   fetch: (request) => handler.fetch(request),
-})
+});
 
-console.log('web server listening on', process.env.PORT ?? 3000)
+console.log("web server listening on", process.env.PORT ?? 3000);

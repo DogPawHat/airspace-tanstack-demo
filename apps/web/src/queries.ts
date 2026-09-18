@@ -1,58 +1,45 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-
+import { queryOptions } from "@tanstack/react-query";
 import {
-  createDraft,
   getAccount,
   getDrafts,
   getNote,
   getNotes,
+  getOptionalAccount,
   getProfile,
-  publishDraft,
-  saveProfile,
-} from './server/air.ts'
+} from "./server/air.ts";
 
-export const accountQuery = () => ({
-  queryKey: ['account'],
-  queryFn: () => getAccount(),
-})
+export const optionalAccountQuery = () =>
+  queryOptions({
+    queryKey: ["account", "optional"],
+    queryFn: () => getOptionalAccount(),
+  });
 
-export const notesQuery = () => ({
-  queryKey: ['notes'],
-  queryFn: () => getNotes(),
-})
+export const accountQuery = () =>
+  queryOptions({
+    queryKey: ["account", "required"],
+    queryFn: () => getAccount(),
+  });
 
-export const noteQuery = (rkey: string) => ({
-  queryKey: ['notes', rkey],
-  queryFn: () => getNote({ data: rkey }),
-})
+export const notesQuery = () =>
+  queryOptions({
+    queryKey: ["notes"],
+    queryFn: () => getNotes(),
+  });
 
-export const profileQuery = () => ({
-  queryKey: ['profile'],
-  queryFn: () => getProfile(),
-})
+export const noteQuery = (rkey: string) =>
+  queryOptions({
+    queryKey: ["notes", rkey],
+    queryFn: () => getNote({ data: rkey }),
+  });
 
-export const draftsQuery = () => ({
-  queryKey: ['drafts'],
-  queryFn: () => getDrafts(),
-})
+export const profileQuery = () =>
+  queryOptions({
+    queryKey: ["profile"],
+    queryFn: () => getProfile(),
+  });
 
-export function useAccount() {
-  return useQuery(accountQuery())
-}
-
-export function useNotes() {
-  return useQuery(notesQuery())
-}
-export function useNote(rkey: string) {
-  return useQuery(noteQuery(rkey))
-}
-export function useProfile() {
-  return useQuery(profileQuery())
-}
-export function useDrafts() {
-  return useQuery(draftsQuery())
-}
-export function useInvalidate() {
-  const queryClient = useQueryClient()
-  return (keys: string[]) => queryClient.invalidateQueries({ queryKey: keys })
-}
+export const draftsQuery = () =>
+  queryOptions({
+    queryKey: ["drafts"],
+    queryFn: () => getDrafts(),
+  });

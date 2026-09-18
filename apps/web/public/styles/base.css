@@ -372,7 +372,7 @@ button:disabled {
   font-weight: 600;
 }
 
-.demo-form input:not([type='file']),
+.demo-form input:not([type="file"]),
 .demo-form textarea,
 .demo-form select {
   background: var(--color-paper);

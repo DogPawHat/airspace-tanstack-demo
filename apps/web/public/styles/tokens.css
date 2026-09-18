@@ -32,10 +32,10 @@
   --shj-deleted: oklch(50% 0.16 25);
   --shj-err: oklch(50% 0.16 25);
 
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: 'Instrument Sans', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-  --font-wordmark: 'Caveat', 'Segoe Script', cursive;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Instrument Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-wordmark: "Caveat", "Segoe Script", cursive;
 
   --text-xs: 0.8125rem;
   --text-sm: 0.875rem;

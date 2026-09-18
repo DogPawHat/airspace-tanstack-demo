@@ -1,42 +1,48 @@
-import { QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
-import { Outlet, createRootRouteWithContext, HeadContent, Link, Scripts } from '@tanstack/react-router'
-import type { QueryClient } from '@tanstack/react-query'
+import type { ReactNode } from "react";
+import {
+  Outlet,
+  createRootRouteWithContext,
+  HeadContent,
+  Link,
+  Scripts,
+} from "@tanstack/react-router";
+import type { QueryClient } from "@tanstack/react-query";
+
+import { DemoShell } from "../components/DemoShell.tsx";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'airspace notes' },
-      { name: 'theme-color', content: '#f9fafb', media: '(prefers-color-scheme: light)' },
-      { name: 'theme-color', content: '#111721', media: '(prefers-color-scheme: dark)' },
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { title: "airspace notes" },
+      { name: "theme-color", content: "#f9fafb", media: "(prefers-color-scheme: light)" },
+      { name: "theme-color", content: "#111721", media: "(prefers-color-scheme: dark)" },
     ],
     links: [
-      { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
-      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-      { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono&family=Space+Grotesk:wght@500&display=swap',
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono&family=Space+Grotesk:wght@500&display=swap",
       },
-      { rel: 'stylesheet', href: '/styles/tokens.css' },
-      { rel: 'stylesheet', href: '/styles/base.css' },
-      { rel: 'stylesheet', href: '/styles/demo.css' },
+      { rel: "stylesheet", href: "/styles/tokens.css" },
+      { rel: "stylesheet", href: "/styles/base.css" },
+      { rel: "stylesheet", href: "/styles/demo.css" },
     ],
   }),
   component: RootComponent,
-})
+});
 
 function RootComponent() {
-  const queryClient = Route.useRouteContext().queryClient
   return (
-    <QueryClientProvider client={queryClient}>
-      <RootDocument>
+    <RootDocument>
+      <DemoShell>
         <Outlet />
-      </RootDocument>
-    </QueryClientProvider>
-  )
+      </DemoShell>
+    </RootDocument>
+  );
 }
 
 /** Port of the upstream airspace docs app `SiteShell.vue`. */
@@ -54,7 +60,12 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
                 <Link to="/" className="wordmark">
                   <span>
                     airspace
-                    <svg className="contrail" viewBox="0 0 120 24" aria-hidden="true" preserveAspectRatio="none">
+                    <svg
+                      className="contrail"
+                      viewBox="0 0 120 24"
+                      aria-hidden="true"
+                      preserveAspectRatio="none"
+                    >
                       <path
                         d="M2 20 C 26 12, 54 22, 82 13 S 112 3, 120 1"
                         fill="none"
@@ -79,9 +90,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             </div>
           </header>
 
-          <main className="wide">
-            {children}
-          </main>
+          <main className="wide">{children}</main>
 
           <footer className="site-footer">
             <p>
@@ -96,5 +105,5 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <Scripts />
       </body>
     </html>
-  )
+  );
 }
